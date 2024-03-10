@@ -1,15 +1,39 @@
-# import pygame module
 import pygame
 
 pygame.init()
 
-# global
 win = pygame.display.set_mode((500, 500))
 pygame.display.set_caption("Mind Guardian 👼")
 
-walkLeft = [pygame.image.load('images/L1.png'),pygame.image.load('images/L2.png'),pygame.image.load('images/L3.png'),pygame.image.load('images/L4.png'),pygame.image.load('images/L5.png'),pygame.image.load('images/L6.png'),pygame.image.load('images/L7.png'),pygame.image.load('images/L8.png'),pygame.image.load('images/L9.png'),]
+walkLeft = [pygame.image.load('images/L1.png'), pygame.image.load('images/L2.png'), ...]
+walkRight = [pygame.image.load('images/R1.png'), pygame.image.load('images/R2.png'), ...]
 
-walkRight = [pygame.image.load('images/R1.png'),pygame.image.load('images/R2.png'),pygame.image.load('images/R3.png'),pygame.image.load('images/R4.png'),pygame.image.load('images/R5.png'),pygame.image.load('images/R6.png'),pygame.image.load('images/R7.png'),pygame.image.load('images/R8.png'),pygame.image.load('images/R9.png'),]
+class player(object):
+    def __init__(self, x, y, width, height):
+        self.x = x  # Renamed from user_x to x
+        self.y = y  # Renamed from user_y to y
+        self.width = width
+        self.height = height
+        self.vel = 5
+        self.isJump = False
+        self.jumpCount = 10
+        self.left = False
+        self.right = False
+        self.walkCount = 0
+
+    def draw(self):  # Removed self.win from parameters
+        if self.walkCount + 1 >= 27:
+            self.walkCount = 0
+
+        if self.left:
+            win.blit(walkLeft[self.walkCount // 3], (self.x, self.y))  # Changed to self.x, self.y
+            self.walkCount += 1
+        elif self.right:
+            win.blit(walkRight[self.walkCount // 3], (self.x, self.y))  # Changed to self.x, self.y
+            self.walkCount += 1
+        else:
+            win.blit(images[0], (self.x, self.y))  # Changed to self.x, self.y
+
 
 user_x = 0
 user_y = 350
@@ -33,61 +57,45 @@ backdrop = pygame.transform.scale(backdrop, (640, 500))
 
 exit = False
 
-def redrawScreen(images):
-    global walkCount
-    # win.fill((255, 255, 255))
+def redrawScreen():  # Removed unused images parameter
     win.blit(backdrop, (0, 0))
-
-    if walkCount + 1 >= 27:
-        walkCount = 0
-    
-    if left:
-        win.blit(walkLeft[walkCount//3], (user_x, user_y))
-        walkCount += 1
-    elif right:
-        win.blit(walkRight[walkCount//3], (user_x, user_y))
-        walkCount += 1
-    else:
-        win.blit(images[0], (user_x, user_y))
-
-    # win.blit(images[0], dest = (user_x, user_y))
-    # win.blit(images[1], dest = (enemy_x, enemy_y))
-
+    man.draw()  # Changed to call draw on the instance
     pygame.display.update()
 
 # LOOP
 
+man = player(300, 410, 64, 64)
 while not exit:
     pygame.time.delay(50)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit = True
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and user_x > vel:
-        user_x -= vel
-        left = True
-        right = False
-    elif keys[pygame.K_RIGHT] and user_x < 500-width-vel:
-        user_x += vel
-        right = True
-        left = False
+    if keys[pygame.K_LEFT] and man.user_x > man.vel:
+        man.user_x -= man.vel
+        man.left = True
+        man.right = False
+    elif keys[pygame.K_RIGHT] and man.user_x < 500-man.width-man.vel:
+        man.user_x += man.vel
+        man.right = True
+        man.left = False
     else:
-        right = False
-        left = False
-        walkCount = 0
-    if not(isJump):
+        man.right = False
+        man.left = False
+        man.walkCount = 0
+    if not(man.isJump):
         if keys[pygame.K_SPACE]:
-            isJump = True
-            right = False
-            left = False
-            walkCount = 0
+            man.isJump = True
+            man.right = False
+            man.left = False
+            man.walkCount = 0
     else:
-        if jumpCount >= -10:
-            user_y -= (jumpCount * abs(jumpCount)) * 0.5
-            jumpCount -= 1
+        if man.jumpCount >= -10:
+            man.user_y -= (man.jumpCount * abs(man.jumpCount)) * 0.5
+            man.jumpCount -= 1
         else: 
-            jumpCount = 10
-            isJump = False
+            man.jumpCount = 10
+            man.isJump = False
 
     redrawScreen(images)
 
