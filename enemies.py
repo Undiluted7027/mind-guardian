@@ -1,4 +1,4 @@
-import pygame
+import pygame, time, json, random
 import cohere
 import json, re
 
@@ -32,6 +32,84 @@ clock = pygame.time.Clock()
 # LEFT = False
 # RIGHT = False
 # walkCount = 0
+
+def driver():
+    # q_list = createQues()
+    print(q_list)
+    question = "No one cares about me"
+    options = ["Nobody understands what I'm going through", "I am valued and loved, even if I don't always feel it", "I don’t have anyone to talk to", "Maybe if I were more outgoing or attractive, people would care"]
+    c_option = "I am valued and loved, even if I don't always feel it"
+    q_bg = Rectangle(300, 300, (172, 213, 240), (500, 500))
+    q_tx = Text(question, font, (0, 0, 0), (500, 400))
+    q1 = questions(10, 200, q_bg, q_tx)
+    t = 0
+    for i in range (len(options)):
+        tx = Text(options[i], font, (0, 0, 0), (10, 200))
+        background = Rectangle(100, 700, (172, 213, 240), (10+t, 200+t))
+        texts.add(tx)
+        rectangles.add(background)
+        t += 50
+    
+    
+
+
+   
+
+
+def createQues():
+        co = cohere.Client('HXsbV5r53c0B94uaC6pcE60ScZhL37Ajr3nB1htX') # This is your trial API key
+        response = co.generate(
+        model='command',
+        prompt="""Provide a list of 2 examples in form of Python dictionary of the most common negative thoughts about diversity, women empowerment, self-help, mental issues and underrepresented genders and 4 options for each thought out of which one might be the most correct option. Be sure to mention the correct answer with each thought. Complete the query in under 300 tokens, Only give me the complete python dictionary output do not give any text before the output or after the output.Provide your output in this format: {
+            "thoughts": [
+                {
+                    "statement": "Diversity is a joke - it's just another word for less competent women, LGBTQ+, and non-white people taking the places of more competent white men.",
+                    "options": [
+                        "The world is a merit-based place",
+                        "Embrace different perspectives and talents",        
+                        "Hire people who look like you"
+                    ],
+                    "correct": "Embrace different perspectives and talents"  
+                },
+                {
+                    "statement": "Women are too sensitive and they just need to get over the microaggressions they experience instead of being so vocal about them.",
+                    "options": [
+                        "Keep quiet or it will get worse",
+                        "Recognize your privilege and speak up",
+                        "Support and amplify their voices"
+                    ],
+                    "correct": "Support and amplify their voices"
+                },
+                {
+                    "statement": "Mental health issues are a choice, and people just need to pull themselves up by their bootstraps and stop feeling sorry for themselves.",
+                    "options": [
+                        "Mental health is a choice",
+                        "Seek professional help",
+                        "Meditate and affirm your way out of depression and anxiety"
+                    ],
+                    "correct": "Seek professional help"
+                },
+                {
+                    "statement": "Not enough people are talking about men's issues and the unique struggles they face, while everyone is too focused on women's issues.",
+                    "options": [
+                        "Focus on women's issues",
+                        "Ignoring women's issues",
+                        "Bridge the gap between women's and men's issues"    
+                    ],
+                    "correct": "Bridge the gap between women's and men's issues"
+                }
+            ]
+        }""",
+        max_tokens=500,
+        temperature=0.1,
+        k=0,
+        stop_sequences=[],
+        return_likelihoods='NONE')
+        txt = response.generations[0].text
+        # print(txt)
+        q_list = json.loads(txt.strip())["thoughts"]
+        return q_list
+
 
 class player(object):
     def __init__(self, x, y, width, height):
@@ -90,91 +168,69 @@ def redrawScreen():  # Removed unused images parameter
     
     win.blit(text, (390, 10))
     man.draw(win)  # Changed to call draw on the instance
-    q1.createBoxes(win)
+    rectangles.draw(win)
+    texts.draw(win)
+    driver()
     
     goblin.draw(win)
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()
 
-class question(pygame.sprite.Sprite):
-    def __init__(self, x, y, q_list):
-        pygame.sprite.Sprite.__init__(self)
+class Text(pygame.sprite.Sprite):
+    def __init__(self, text, font, color, position):
+        super().__init__()
+        self.font = font
+        self.color = color
+        self.image = self.font.render(text, True, color)
+        self.rect = self.image.get_rect(topleft=position)
+
+class Rectangle(pygame.sprite.Sprite):
+    def __init__(self, width, height, color, position):
+        super().__init__()
+        self.image = pygame.Surface((width, height))
+        self.image.fill(color)
+        self.rect = self.image.get_rect(topleft=position)
+
+
+
+class questions(pygame.sprite.Sprite):
+    def __init__(self, x, y, bg, txt):
+        super().__init__()
         self.x = x
         self.y = y
-        self.q_list = q_list
+        self.bg = bg
+        self.txt = txt    
     
-    def addRect(self, win, color, x, y):
-        pygame.draw.rect(win, (color), (175, 75, x, y), 2)
+    def createText(self, win):
+        text_surface = font.render(self.txt, True, (0, 0, 0))
+        win.blit(text_surface, (self.x+50, self.y+50))
     
-    def addText(self, win, txt, color, x, y):
-        win.blit(font.render(txt, True, (255, 0, 0)), (x, y))
+    def draw(self):
+        self.createText(win)
 
-    def createBoxes(self, win):
-        self.createQues()
-        self.addRect(win, (0, 0, 0), self.x, self.y)
-        self.addText(win, self.q_list[0]["options"][0], (255, 0, 0), self.x+10, self.y+10)
-        self.addRect(win, (0, 0, 0), self.x+50, self.y+50)
-        self.addText(win, self.q_list[0]["options"][1], (255, 0, 0), self.x+60, self.y+60)
-        self.addRect(win, (0, 0, 0), self.x+100, self.y+100)
-        self.addText(win, self.q_list[0]["options"][2], (255, 0, 0), self.x+110, self.y+110)
+
+
+# class options(pygame.sprite.Sprite):
+#     def __init__(self, x, y, ques, weight, q_box, o_boxes):
+#         pygame.sprite.Sprite.__init__(self)
+#         self.x = x
+#         self.y = y
+#         self.ques = ques
+#         self.q_box = q_box
+#         self.o_boxes = o_boxes
+    
+#     def addOptions(self, win, color, x, y, selected=False):
+#         self.o_boxes = pygame.Rect(x, y, 200, 50)
+#         pygame.draw.q_box(win, RED if selected else WHITE, q_box)
+#         text_surface = font.render("Option1", True, (0, 0, 0))
+#         win.blit(text_surface, (x+10, y+10))
 
 
         
 
 
-    def createQues(self):
-        co = cohere.Client('') # This is your trial API key
-        response = co.generate(
-        model='command',
-        prompt="""Provide a list of 2 examples in form of Python dictionary of the most common negative thoughts about diversity, women empowerment, self-help, mental issues and underrepresented genders and 4 options for each thought out of which one might be the most correct option. Be sure to mention the correct answer with each thought. Complete the query in under 300 tokens, Only give me the complete python dictionary output do not give any text before the output or after the output.Sample example has been provided: {
-            "thoughts": [
-                {
-                    "statement": "Diversity is a joke - it's just another word for less competent women, LGBTQ+, and non-white people taking the places of more competent white men.",
-                    "options": [
-                        "The world is a merit-based place",
-                        "Embrace different perspectives and talents",        
-                        "Hire people who look like you"
-                    ],
-                    "correct": "Embrace different perspectives and talents"  
-                },
-                {
-                    "statement": "Women are too sensitive and they just need to get over the microaggressions they experience instead of being so vocal about them.",
-                    "options": [
-                        "Keep quiet or it will get worse",
-                        "Recognize your privilege and speak up",
-                        "Support and amplify their voices"
-                    ],
-                    "correct": "Support and amplify their voices"
-                },
-                {
-                    "statement": "Mental health issues are a choice, and people just need to pull themselves up by their bootstraps and stop feeling sorry for themselves.",
-                    "options": [
-                        "Mental health is a choice",
-                        "Seek professional help",
-                        "Meditate and affirm your way out of depression and anxiety"
-                    ],
-                    "correct": "Seek professional help"
-                },
-                {
-                    "statement": "Not enough people are talking about men's issues and the unique struggles they face, while everyone is too focused on women's issues.",
-                    "options": [
-                        "Focus on women's issues",
-                        "Ignoring women's issues",
-                        "Bridge the gap between women's and men's issues"    
-                    ],
-                    "correct": "Bridge the gap between women's and men's issues"
-                }
-            ]
-        }""",
-        max_tokens=500,
-        temperature=0.1,
-        k=0,
-        stop_sequences=[],
-        return_likelihoods='NONE')
-        txt = response.generations[0].text
-        print(txt)
-        self.q_list = json.loads(txt.strip())["thoughts"]
+    
     
     
 
@@ -250,14 +306,19 @@ class enemy(pygame.sprite.Sprite):
 
 # LOOP
 font = pygame.font.SysFont('comicsans', 20, True)
-qlist = []
-q1 = question(q_list=qlist, x=20, y=20)
+rectangles = pygame.sprite.Group()
+texts = pygame.sprite.Group()
+
+
+Questions = pygame.sprite.Group()
+
 man = player(200, 200, 64,64)
 goblins = pygame.sprite.Group()
 goblin = enemy(100, 150, 64, 64, 300)
 goblins.add(goblin)
 shootLoop = 0
 score = 0
+selected_option = None
 exit = False
 bullets = []
 
@@ -323,6 +384,13 @@ while not exit:
         else:
             man.isJump = False
             man.jumpCount = 10
+    
+    if keys[pygame.K_a]:
+        selected_option = 'a'
+    elif keys[pygame.K_b]:
+        selected_option = 'b'
+    elif keys[pygame.K_c]:
+        selected_option = 'c'
 
     redrawScreen()
 
