@@ -34,3 +34,5 @@ Enabling user to customise character
 Adding different levels for physical and mental health
 Making it into an app for users to play on the go
 Allow the user to click and choose which option
+
+Figma: https://www.figma.com/file/jriUHHVYtKXGw7vW90ZXeK/CMD-F-2024-Mind-Guardian?type=design&node-id=0-1&mode=design&t=v8KBb7Bom52Jofyv-0
