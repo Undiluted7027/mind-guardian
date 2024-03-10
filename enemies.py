@@ -36,12 +36,15 @@ clock = pygame.time.Clock()
 def driver():
     # q_list = createQues()
     # print(q_list)
-    question = "No one cares about me"
+    question = "Thought: No one cares about me"
     options = ["Nobody understands what I'm going through", "I am valued and loved, even if I don't always feel it", "I don’t have anyone to talk to", "Maybe if I were more outgoing or attractive, people would care"]
     c_option = "I am valued and loved, even if I don't always feel it"
-    q_bg = Rectangle(300, 300, (172, 213, 240), (500, 500))
-    q_tx = Text(question, font, (0, 0, 0), (500, 400))
+    q_bg = Rectangle(650, 40, (172, 213, 240), (10, 100))
+    q_tx = Text(question, font, (0, 0, 0), (10, 100))
+    rectangles.add(q_bg)
+    texts.add(q_tx)
     q1 = questions(10, 200, q_bg, q_tx)
+    Questions.add(q1)
     t = 0
     k = 0
     for i in range (len(options)):
@@ -337,6 +340,9 @@ while not exit:
         if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
             if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2] and goblin.visible == True:
                 goblin.hit()
+                hit_sound = pygame.mixer.Sound("mixkit-8-bit-explosion-gun-2779.wav")
+                pygame.mixer.Sound.play(hit_sound)
+                pygame.mixer.music.stop()
                 score += 1 # NEW CODE
                 bullets.pop(bullets.index(bullet))
         if bullet.x < 680 and bullet.x > 0:
