@@ -87,7 +87,7 @@ def redrawScreen():  # Removed unused images parameter
     text = font.render('Score: ' + str(score), 1, (0,0,0))
     win.blit(text, (390, 10))
     man.draw(win)  # Changed to call draw on the instance
-    goblin.draw(win)
+    monster.draw(win)
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()
@@ -153,6 +153,9 @@ class enemy(object):
 
 
 
+    def hit(self):
+        print("shoot")
+
 
 
 # LOOP
@@ -187,13 +190,15 @@ while not exit:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_SPACE]:
+    if keys[pygame.K_SPACE] and shootLoop == 0:
         if man.left:
             facing = -1
         else:
             facing = 1
         if len(bullets) < 5:
             bullets.append(shoot(round(man.x + man.width // 2),round(man.y + man.height // 2), 6, (0,0,0), facing))
+        
+        shootLoop = 1
 
     if keys[pygame.K_LEFT] and man.x > man.vel:
         man.x -= man.vel
