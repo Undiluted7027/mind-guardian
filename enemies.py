@@ -43,6 +43,7 @@ class player(object):
         self.right = False
         self.walkCount = 0
         self.standing = True
+        self.hitbox = (self.x + 3, self.y + 20, 80, 80)
 
     def draw(self, win):
         if self.walkCount + 1 >= 9:
@@ -60,6 +61,8 @@ class player(object):
                 win.blit(walkRight[0], (self.x, self.y))
             else:
                 win.blit(walkLeft[0], (self.x, self.y))
+        self.hitbox = (self.x + 3, self.y + 20, 80, 80)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox,2)
 
 class shoot(object):
     def __init__(self,x,y,radius,color,facing):
@@ -80,7 +83,7 @@ exit = False
 def redrawScreen():  # Removed unused images parameter
     win.blit(BACKDROP, (0, 0))
     man.draw(win)  # Changed to call draw on the instance
-    goblin.draw(win)
+    monster.draw(win)
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()
@@ -100,6 +103,7 @@ class enemy(object):
         self.path = [x, end]
         self.walkCount = 0
         self.vel = 3
+        self.hitbox = (self.x + 15, self.y + 50, 100, 100)
     
     def draw(self, win):
         self.move()
@@ -111,6 +115,8 @@ class enemy(object):
         else:
             win.blit(ST_ENEMY_IMG, (self.x, self.y))
             self.walkCount += 1
+        self.hitbox = (self.x + 15, self.y + 50, 100, 100)
+        pygame.draw.rect(win, (255, 0, 0), self.hitbox,2)
 
     def move(self):
         if self.vel > 0:
@@ -128,19 +134,33 @@ class enemy(object):
                 self.walkCount = 0
                 self.x += self.vel
 
+    def hit(self):
+        print("shoot")
+
 
 
 # LOOP
 man = player(200, 200, 64,64)
-goblin = enemy(100, 150, 64, 64, 300)
+monster = enemy(100, 150, 64, 64, 300)
+shootLoop = 0
 bullets = []
 
 while not exit:
     clock.tick(27)
+
+    if shootLoop > 0:
+        shootLoop += 1
+    if shootLoop > 3:
+        shootLoop = 0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit = True
     for bullet in bullets:
+        if bullet.y - bullet.radius < monster.hitbox[1] + monster.hitbox[3] and bullet.y + bullet.radius > monster.hitbox[1]:
+            if bullet.x + bullet.radius > monster.hitbox[0] and bullet.x - bullet.radius < monster.hitbox[0] + monster.hitbox[2]:
+                monster.hit()
+                bullets.pop(bullets.index(bullet))
         if bullet.x < 500 and bullet.x > 0:
             bullet.x += bullet.vel 
         else:
@@ -149,13 +169,15 @@ while not exit:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_SPACE]:
+    if keys[pygame.K_SPACE] and shootLoop == 0:
         if man.left:
             facing = -1
         else:
             facing = 1
         if len(bullets) < 5:
             bullets.append(shoot(round(man.x + man.width // 2),round(man.y + man.height // 2), 6, (0,0,0), facing))
+        
+        shootLoop = 1
 
     if keys[pygame.K_LEFT] and man.x > man.vel:
         man.x -= man.vel
