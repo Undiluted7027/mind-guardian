@@ -87,7 +87,7 @@ def redrawScreen():  # Removed unused images parameter
     text = font.render('Score: ' + str(score), 1, (0,0,0))
     win.blit(text, (390, 10))
     man.draw(win)  # Changed to call draw on the instance
-    monster.draw(win)
+    goblin.draw(win)
     for bullet in bullets:
         bullet.draw(win)
     pygame.display.update()
@@ -154,7 +154,11 @@ class enemy(object):
 
 
     def hit(self):
-        print("shoot")
+        if self.health > 0:
+            self.health -= 1
+        else:
+            self.visible = False
+        print('hit')
 
 
 
