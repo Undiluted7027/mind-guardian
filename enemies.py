@@ -55,11 +55,21 @@ while not exit:
         user_x -= vel
     if keys[pygame.K_RIGHT] and user_x < 500-width-vel:
         user_x += vel
-    if keys[pygame.K_UP] and user_y > vel:
-        user_y -= vel
-    if keys[pygame.K_DOWN] and user_y < 500-height-vel:
-        user_y += vel
-    if keys[pygame.K_SPACE]:
-        isJump = True
-        
+    if not(isJump):
+        # comment this section for making the jump short & smooth
+        # use **2 for jumps that potentially make the user fly super high lol
+        # if keys[pygame.K_UP] and user_y > vel:
+        #     user_y -= vel
+        if keys[pygame.K_DOWN] and user_y < 500-height-vel:
+            user_y += vel
+        if keys[pygame.K_SPACE]:
+            isJump = True
+    else:
+        if jumpCount >= -10:
+            user_y -= (jumpCount * 2)*0.5
+            jumpCount -= 1
+        else:
+            isJump = False
+            jumpCount = 10
+
     pygame.display.update()
