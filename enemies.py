@@ -62,7 +62,7 @@ def driver():
 
 
 def createQues():
-        co = cohere.Client('HXsbV5r53c0B94uaC6pcE60ScZhL37Ajr3nB1htX') # This is your trial API key
+        co = cohere.Client('') # This is your trial API key
         response = co.generate(
         model='command',
         prompt="""Provide a list of 2 examples in form of Python dictionary of the most common negative thoughts about diversity, women empowerment, self-help, mental issues and underrepresented genders and 4 options for each thought out of which one might be the most correct option. Be sure to mention the correct answer with each thought. Complete the query in under 300 tokens, Only give me the complete python dictionary output do not give any text before the output or after the output.Provide your output in this format: {
