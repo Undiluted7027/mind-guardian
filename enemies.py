@@ -43,6 +43,7 @@ class player(object):
         self.right = False
         self.walkCount = 0
         self.standing = True
+        self.standing = True
 
     def draw(self, win):  # Removed self.win from parameters
         if self.walkCount + 1 >= 9:
@@ -55,7 +56,30 @@ class player(object):
             elif self.right:
                 win.blit(walkRight[self.walkCount // 3], (self.x, self.y))  
                 self.walkCount += 1
+        if not(self.standing):
+            if self.left:
+                win.blit(walkLeft[self.walkCount // 3], (self.x, self.y)) 
+                self.walkCount += 1
+            elif self.right:
+                win.blit(walkRight[self.walkCount // 3], (self.x, self.y))  
+                self.walkCount += 1
         else:
+            if self.right:
+                win.blit(walkRight[0], (self.x,self.y))
+            else:
+                win.blit(walkLeft[0], (self.x,self.y))
+
+class shoot(object):
+    def __init__(self,x,y,radius,color,facing):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.color = color
+        self.facing = facing
+        self.vel = 8 * facing
+
+    def draw(win):
+        pygame.draw.circle(win, self.color, (self.x,self.y), self.radius) 
             if self.right:
                 win.blit(walkRight[0], (self.x,self.y))
             else:
@@ -136,6 +160,7 @@ class enemy(object):
 en = enemy(100, 450, 200, 200, 300)
 man = player(250, 250, 80, 80)
 bullets = []
+bullets = []
 while not exit:
     clock.tick(27)
     for event in pygame.event.get():
@@ -147,7 +172,21 @@ while not exit:
         else:
             bullets.pop(bullets.index(bullet))
 
+    for bullet in bullets:
+        if bullet.x < 500 and bullet.x > 0:
+            bullet.x += bullet.vel 
+        else:
+            bullets.pop(bullets.index(bullet))
+
     keys = pygame.key.get_pressed()
+
+    if keys[pygame.K_SPACE]:
+        if man.left:
+            facing = -1
+        else:
+            facing = 1
+        if len(bullets) < 5:
+            bullets.append(shoot(round(man.x + man.width // 2),round(man.y + man.height // 2), 6, (0,0,0), facing))
 
     if keys[pygame.K_SPACE]:
         if man.left:
@@ -166,7 +205,9 @@ while not exit:
         man.right = True
         man.left = False
         man.standing = False
+        man.standing = False
     else:
+        man.standing = True
         man.standing = True
         man.walkCount = 0
     if not(man.isJump):
