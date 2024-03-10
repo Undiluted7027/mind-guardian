@@ -1,6 +1,7 @@
 import pygame
 import cohere
 import json, re
+import buttons
 
 pygame.init()
 
@@ -17,7 +18,13 @@ walkLeft = [pygame.image.load('trial/L1.png'), pygame.image.load('trial/L2.png')
 walkRight = [pygame.image.load('trial/R1.png'), pygame.image.load('trial/R2.png'), pygame.image.load('trial/R3.png')]
 walkLeft = [pygame.transform.scale(i, (80, 80)) for i in walkLeft]
 walkRight = [pygame.transform.scale(i, (80, 80)) for i in walkRight]
+start_img = pygame.image.load('images/start_btn.png').convert_alpha()
+exit_img = pygame.image.load('images/exit_btn.png').convert_alpha()
 
+
+#button instances
+start_button = buttons.Button(100,200,start_img,0.8)
+exit_button = buttons.Button(450,200,exit_img,0.8)
 
 clock = pygame.time.Clock()
 # user_x = 0
@@ -124,7 +131,7 @@ class question(pygame.sprite.Sprite):
 
 
     def createQues(self):
-        co = cohere.Client('') # This is your trial API key
+        co = cohere.Client('HXsbV5r53c0B94uaC6pcE60ScZhL37Ajr3nB1htX') # This is your trial API key
         response = co.generate(
         model='command',
         prompt="""Provide a list of 2 examples in form of Python dictionary of the most common negative thoughts about diversity, women empowerment, self-help, mental issues and underrepresented genders and 4 options for each thought out of which one might be the most correct option. Be sure to mention the correct answer with each thought. Complete the query in under 300 tokens, Only give me the complete python dictionary output do not give any text before the output or after the output.Sample example has been provided: {
@@ -247,7 +254,6 @@ class enemy(pygame.sprite.Sprite):
 
 
 
-
 # LOOP
 font = pygame.font.SysFont('comicsans', 20, True)
 qlist = []
@@ -263,6 +269,13 @@ bullets = []
 
 while not exit:
     clock.tick(27)
+
+
+# if start_button.draw(win):
+#      print('START')
+#   if exit_button.draw(win):
+#       exit = True
+
     if shootLoop > 0:
         shootLoop += 1
     if shootLoop > 3:
@@ -325,5 +338,6 @@ while not exit:
             man.jumpCount = 10
 
     redrawScreen()
+    print('exit')
 
 pygame.quit()
