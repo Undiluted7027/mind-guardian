@@ -35,7 +35,7 @@ clock = pygame.time.Clock()
 
 def driver():
     # q_list = createQues()
-    print(q_list)
+    # print(q_list)
     question = "No one cares about me"
     options = ["Nobody understands what I'm going through", "I am valued and loved, even if I don't always feel it", "I don’t have anyone to talk to", "Maybe if I were more outgoing or attractive, people would care"]
     c_option = "I am valued and loved, even if I don't always feel it"
@@ -43,12 +43,14 @@ def driver():
     q_tx = Text(question, font, (0, 0, 0), (500, 400))
     q1 = questions(10, 200, q_bg, q_tx)
     t = 0
+    k = 0
     for i in range (len(options)):
-        tx = Text(options[i], font, (0, 0, 0), (10, 200))
-        background = Rectangle(100, 700, (172, 213, 240), (10+t, 200+t))
+        tx = Text(options[i], font, (0, 0, 0), (10, 300 + t))
+        background = Rectangle(650, 40, (172, 213, 240), (10, 300+t))
         texts.add(tx)
         rectangles.add(background)
         t += 50
+        # k += 80
     
     
 
