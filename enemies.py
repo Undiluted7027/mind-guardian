@@ -1,32 +1,47 @@
-# import pygame module
 import pygame
 
 pygame.init()
 
-# global
-win = pygame.display.set_mode((600, 480))
+win = pygame.display.set_mode((500, 500))
 pygame.display.set_caption("Mind Guardian 👼")
 
+walkLeft = [pygame.image.load('images/L1.png'), pygame.image.load('images/L2.png'), ...]
+walkRight = [pygame.image.load('images/R1.png'), pygame.image.load('images/R2.png'), ...]
 
-USER_IMG = pygame.image.load("user.png")
-ST_ENEMY_IMG = pygame.image.load("enemy.png")
-USER_IMG = pygame.transform.scale(USER_IMG, (80, 80))
-ST_ENEMY_IMG = pygame.transform.scale(ST_ENEMY_IMG, (100, 100))
-backdrop = pygame.image.load("images/backdrop4.jpg")
-backdrop = pygame.transform.scale(backdrop, (600, 480))
-walkLeftRetro = [pygame.image.load('trial/L1.png'), pygame.image.load('trial/L2.png'), pygame.image.load('trial/L3.png')]
-walkRightRetro = [pygame.image.load('trial/R1.png'), pygame.image.load('trial/R2.png'), pygame.image.load('trial/R3.png')]
-walkRightRetro = [pygame.transform.scale(i, (65, 65)) for i in walkRightRetro]
-walkLeftRetro = [pygame.transform.scale(i, (65, 65)) for i in walkLeftRetro]
+class player(object):
+    def __init__(self, x, y, width, height):
+        self.x = x  # Renamed from user_x to x
+        self.y = y  # Renamed from user_y to y
+        self.width = width
+        self.height = height
+        self.vel = 5
+        self.isJump = False
+        self.jumpCount = 10
+        self.left = False
+        self.right = False
+        self.walkCount = 0
+
+    def draw(self):  # Removed self.win from parameters
+        if self.walkCount + 1 >= 27:
+            self.walkCount = 0
+
+        if self.left:
+            win.blit(walkLeft[self.walkCount // 3], (self.x, self.y))  # Changed to self.x, self.y
+            self.walkCount += 1
+        elif self.right:
+            win.blit(walkRight[self.walkCount // 3], (self.x, self.y))  # Changed to self.x, self.y
+            self.walkCount += 1
+        else:
+            win.blit(images[0], (self.x, self.y))  # Changed to self.x, self.y
 
 
-USER_X = 0
-USER_Y = 250
-ENEMY_X = 350
-ENEMY_Y = 220
-WIDTH = 40
-HEIGHT = 60
-V = 5
+user_x = 0
+user_y = 350
+enemy_x = 350
+enemy_y = 350
+width = 40
+height = 60
+vel = 5
 isJump = False
 jumpCount = 10
 LEFT = False
@@ -39,23 +54,9 @@ clock = pygame.time.Clock()
 
 exit = False
 
-def redrawScreen():
-    global walkCount
-    # win.fill((255, 255, 255)) # debugger
+def redrawScreen():  # Removed unused images parameter
     win.blit(backdrop, (0, 0))
-
-    if walkCount + 1 >= 9:
-        walkCount = 0
-    if LEFT:
-        win.blit(walkLeftRetro[walkCount//3], (USER_X, USER_Y))
-        walkCount += 1
-    elif RIGHT:
-        win.blit(walkRightRetro[walkCount//3], (USER_X, USER_Y))
-        walkCount += 1
-    else:
-        win.blit(USER_IMG, (USER_X, USER_Y))
-
-    win.blit(ST_ENEMY_IMG, dest = (ENEMY_X, ENEMY_Y))
+    man.draw()  # Changed to call draw on the instance
     pygame.display.update()
 
 
@@ -63,37 +64,39 @@ class enemy(object):
     walkRight = [pygame.image.load("images/R1E.png"),pygame.image.load("images/R1E.png"),pygame.image.load("images/R1E.png"),]
 
 # LOOP
+
+man = player(300, 410, 64, 64)
 while not exit:
     clock.tick(27)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit = True
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and USER_X > V:
-        USER_X -= V
-        LEFT = True
-        RIGHT = False
-    elif keys[pygame.K_RIGHT] and USER_X < 500-WIDTH-V:
-        USER_X += V
-        RIGHT = True
-        LEFT = False
+    if keys[pygame.K_LEFT] and man.user_x > man.vel:
+        man.user_x -= man.vel
+        man.left = True
+        man.right = False
+    elif keys[pygame.K_RIGHT] and man.user_x < 500-man.width-man.vel:
+        man.user_x += man.vel
+        man.right = True
+        man.left = False
     else:
-        RIGHT = False
-        LEFT = False
-        walkCount = 0
-    if not(isJump):
+        man.right = False
+        man.left = False
+        man.walkCount = 0
+    if not(man.isJump):
         if keys[pygame.K_SPACE]:
-            isJump = True
-            RIGHT = False
-            LEFT = False
-            walkCount = 0
+            man.isJump = True
+            man.right = False
+            man.left = False
+            man.walkCount = 0
     else:
-        if jumpCount >= -10:
-            USER_Y -= (jumpCount * abs(jumpCount)) * 0.25
-            jumpCount -= 1
+        if man.jumpCount >= -10:
+            man.user_y -= (man.jumpCount * abs(man.jumpCount)) * 0.5
+            man.jumpCount -= 1
         else: 
-            jumpCount = 10
-            isJump = False
+            man.jumpCount = 10
+            man.isJump = False
 
     redrawScreen()
 
